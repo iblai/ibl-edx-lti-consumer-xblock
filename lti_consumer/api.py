@@ -128,6 +128,7 @@ def get_lti_1p3_launch_info(
 
     if deep_linking_enabled:
         launch_data.message_type = "LtiDeepLinkingRequest"
+        lti_consumer.launch_url = lti_consumer.dl.deep_linking_launch_url
         deep_linking_launch_url = lti_consumer.prepare_preflight_url(
             launch_data,
         )
