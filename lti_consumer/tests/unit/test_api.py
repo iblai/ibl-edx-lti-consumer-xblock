@@ -21,10 +21,12 @@ from lti_consumer.api import (
     validate_lti_1p3_launch_data,
 )
 from lti_consumer.data import Lti1p3LaunchData, Lti1p3ProctoringLaunchData
+from lti_consumer.lti_1p3.consumer import LtiAdvantageConsumer
 from lti_consumer.lti_xblock import LtiConsumerXBlock
 from lti_consumer.models import LtiConfiguration, LtiDlContentItem
 from lti_consumer.tests.test_utils import make_xblock
 from lti_consumer.utils import get_data_from_cache
+from lti_consumer.lti_1p3.tests.test_consumer import RSA_KEY, RSA_KEY_ID
 
 # it's convenient to have this in lowercase to compare to URLs
 _test_config_id = "6c440bf4-face-beef-face-e8bcfb1e53bd"
@@ -442,6 +444,39 @@ class TestGetLti1p3LaunchInfo(TestCase):
             resource_link_id="resource_link_id",
         )
 
+    def test_deep_link_launch_sets_login_init_target_link_uri_to_deep_link_url(self):
+        """
+        For a DL launch, the target_link_uri in login init request should be DL url
+        """
+        dl_launch_url = 'http://lti.provider.local/dee-link-launch'
+        launch_data = self._get_lti_1p3_launch_data()
+        LtiConfiguration.objects.create(
+            location='block-v1:course+test+2020+type@problem+block@test',
+            config_id=_test_config_id,
+        )
+
+        consumer = LtiAdvantageConsumer(
+            iss='http://localhost',
+            lti_oidc_url='http://lti.provider.local/login_init',
+            lti_launch_url='http://lti.provider.local/launch',
+            client_id='test-client',
+            deployment_id='1',
+            rsa_key=RSA_KEY,
+            rsa_key_id=RSA_KEY_ID,
+            redirect_uris=[],
+            tool_key=None,
+            tool_keyset_url=None,
+        )
+        consumer.enable_deep_linking(dl_launch_url, 'http://localhost/dl/return')
+        self._get_lti_consumer_patch.return_value = consumer
+
+        # Call and check returns
+        launch_info = get_lti_1p3_launch_info(launch_data)
+        parts = urlparse(launch_info['deep_linking_launch_url'])
+        query = parse_qs(parts.query)
+
+        self.assertEqual(query['target_link_uri'], [dl_launch_url])
+
     def test_retrieve_with_id(self):
         """
         Check if the API retrieves the launch with id.
@@ -601,6 +636,8 @@ class TestGetLti1p3LaunchUrl(Lti1P3TestCase):
     def test_get_deep_linking_lti_launch_url(self):
         """
         Check if the correct launch url is retrieved for a deep linking LTI 1.3 launch.
+
+        NOTE: This doesn't appear to be checking any url?
         """
 
         launch_data = self._get_lti_1p3_launch_data()
