@@ -629,6 +629,8 @@ class LtiAdvantageConsumer(LtiConsumer1p3):
             # replacing the normal launch request.
             lti_launch_message.update({
                 "https://purl.imsglobal.org/spec/lti/claim/message_type": "LtiDeepLinkingRequest",
+                # target_link_uri must match preflight and for DL be DL launch url
+                "https://purl.imsglobal.org/spec/lti/claim/target_link_uri": self.dl.deep_linking_launch_url,
             })
             # Include deep linking claim
             lti_launch_message.update(
