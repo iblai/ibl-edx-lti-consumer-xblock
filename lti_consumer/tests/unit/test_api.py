@@ -463,7 +463,6 @@ class TestGetLti1p3LaunchInfo(TestCase):
             deployment_id='1',
             rsa_key=RSA_KEY,
             rsa_key_id=RSA_KEY_ID,
-            redirect_uris=[],
             tool_key=None,
             tool_keyset_url=None,
         )
