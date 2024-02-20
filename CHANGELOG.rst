@@ -16,6 +16,11 @@ Please See the [releases tab](https://github.com/openedx/xblock-lti-consumer/rel
 Unreleased
 ~~~~~~~~~~
 
+7.4.0 - 2024-02-20
+------------------
+* Uses deep linking launch url as ``target_link_uri`` in preflight if deep link launch
+* Don't override redirect uri to DL launch url during DL launch; respect tool's redirect uri
+
 7.3.0 - 2023-01-30
 ------------------
 * Rename edx-platform import of ``get_module_for_descriptor_internal``.
